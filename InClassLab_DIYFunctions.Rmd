@@ -1,0 +1,198 @@
+---
+title: "In Class Lab"
+author: "Dr. Shoemaker"
+date: "DATA 2401"
+output: html_document
+---
+**Note: Your exam will be in a similar format to this (RMarkdown File with Questions and Code chunks for your answers), so make sure you have the process for knitting to html working.** 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## In Class Activity 
+
+1. Write a function to simulate rolling a 6-sided die and returns the result.
+
+```{r}
+roll <- function() {
+  sample(1:6,1)
+}
+
+roll()
+```
+
+
+
+1. Write a function to simulate rolling 2 6-sided dice that returns the sum of the rolls. 
+
+```{r}
+roll.twice <- function() {
+  return (roll()+roll())
+}
+
+roll.twice()
+```
+
+
+1. Write a function that takes two people name's as strings, simulates rolling a 6-sided die for each of the names, then returns the name of the person with the higher roll. The function should reroll once on a tie, but if there is a second tie, it should return "draw". 
+
+```{r}
+# Your one-roll function goes here
+players_roll <- function(player1,player2) {
+  roll1 <- roll()
+  roll2 <- roll()
+  
+  print(paste(player1,"rolled a", roll1))
+  print(paste(player2, "rolled a", roll2))
+  
+  
+  if(roll1 == roll2) {
+    print("There was a tie, rerolling")
+    roll1 <- roll()
+    roll2 <- roll()
+    print(paste(player1,"rolled a", roll1))
+    print(paste(player2, "rolled a", roll2))
+  }
+  
+  if(roll1 == roll2) {
+    print("We tied again!")
+    return ("draw")
+  }
+  else if(roll1 < roll2) {
+    return(player2)
+  }
+  else {
+    return(player1)
+  }
+  
+}
+
+players_roll("Alex", "Todd")
+```
+
+
+2. Write a second function (you may start by modifying the first one) that takes two names as strings, simulates both of them rolling die 15 times, and returns the name of the person who "won" more rolls. Don't reroll ties this time, but don't count them as "wins". 
+
+```{r}
+# Your 15-roll function goes here
+roll.15.times <- function(player1, player2) {
+  p1.wins <- 0
+  p2.wins <- 0
+  
+  for(i in 1:15) {
+    roll1 <- roll()
+    roll2 <- roll()
+    
+    print(paste("Roll",as.character(i),":"))
+    print(paste(player1,"rolled a",as.character(roll1)))
+    print(paste(player2,"rolled a", as.character(roll2)))
+    
+    
+    if(roll1 < roll2) {
+      print(paste(player2,"wins this round"))
+      p2.wins <- p2.wins + 1
+    }
+    else if(roll1 > roll2) {
+      print(paste(player1,"wins this round"))
+      p1.wins <- p1.wins +1
+    }
+  }
+  
+  if(p1.wins == p2.wins) {
+    print("The game ended in a tie!")
+  }
+  else if(p1.wins < p2.wins) {
+    print(paste(player2,"wins the game!"))
+    return(player2)
+  }
+  else {
+    print(paste(player1,"wins the game!"))
+    return(player1)
+  }
+  
+}
+
+roll.15.times("Alex","Todd")
+
+```
+
+
+3. Modify your function from (2) so that the person in the first argument has a die that is weighted to get higher numbers more often (you may decide the actual percentage change). Run the function ten or so times. Does the second person ever win?
+
+```{r}
+# Your "cheating" function goes here
+cheating.die <- function() {
+  weights <- c(rep(1/16,4),rep(3/8,2))
+  sample(1:6,1,prob=weights)
+}
+fair.die <- roll
+
+roll.15.times.with.dice <- function(player1, player2,player1.die,player2.die,silent=FALSE) {
+  p1.wins <- 0
+  p2.wins <- 0
+  
+  for(i in 1:15) {
+    roll1 <- player1.die()
+    roll2 <- player2.die()
+    
+    if(silent == FALSE)
+    {
+      print(paste("Roll",as.character(i),":"))
+      print(paste(player1,"rolled a",as.character(roll1)))
+      print(paste(player2,"rolled a", as.character(roll2)))
+    }
+    
+    if(roll1 < roll2) {
+      if(silent == FALSE)
+      {
+        print(paste(player2,"wins this round"))
+      }
+      
+      p2.wins <- p2.wins + 1
+    }
+    else if(roll1 > roll2) {
+      if(silent == FALSE)
+      {
+        print(paste(player1,"wins this round"))
+      }
+      p1.wins <- p1.wins +1
+    }
+  }
+  
+  if(p1.wins == p2.wins) {
+    if(silent == FALSE) {
+      print("The game ended in a tie!")
+    }
+    return("tie")
+  }
+  else if(p1.wins < p2.wins) {
+    if(silent == FALSE) {
+      print(paste(player2,"wins the game!"))
+    }
+    return(player2)
+  }
+  else {
+    if(silent == FALSE) {
+      print(paste(player1,"wins the game!"))
+    }
+    return(player1)
+  }
+  
+}
+
+# how many times will the cheating die win
+count <- 0
+while(roll.15.times.with.dice("Alex","Todd",cheating.die,fair.die,silent=TRUE) == "Alex") {
+  count <- count + 1
+  if(count > 10000) {
+    print(paste("Todd lost 10,000 times in a row!"))
+    break
+  }
+}
+
+print(paste("Todd finally won a game after losing",as.character(count),"times"))
+print(count)
+
+```
+
